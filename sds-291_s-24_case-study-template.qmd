@@ -56,7 +56,7 @@ Our prediction interval tells us that, based on this sample 95% of the time, the
 
 **Assuming that some of the votes cast for Buchanan were intended as votes for Gore, use the prediction interval to give an estimate for the likely number of votes intended for Gore but cast for Buchanan.**
 
-There were 3407 votes for Buchanan, but our prediction interval tells us that the number of votes expected for Buchanan 95% of the time is between 364 and 830, so the likely number of votes intended for Gore but cast for Buchanan were between 3407-830 =  and 3407-364 =  
+There were 3407 votes for Buchanan, but our prediction interval tells us that the number of votes expected for Buchanan 95% of the time is between 364 and 830, so the likely number of votes intended for Gore but cast for Buchanan were between $3407-830 = 2577$ and $3407-364 = 3043$
 
 
 
