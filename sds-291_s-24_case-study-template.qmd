@@ -21,6 +21,48 @@ format:
 
 *As you write your report, you may wish to reference the guide to typesetting regression lines in Quarto using LaTeX (linked at the top of our class Moodle page), the Quarto help page for formatting documents using Markdown (), and the Quarto help page for customizing the output from executed code chunks.*
 
+----
+
+## Data Exploration
+
+```{r}
+model <- lm(Buchanan2000 ~ Bush2000, data = election_wo_pb)
+summary(model)
+```
+
+```{r}
+ggplot(data = election_wo_pb, aes(x = Bush2000, y = Buchanan2000)) +
+  geom_point() +
+  ggtitle("Without Palm Beach") + scale_x_continuous(trans = "log10", labels = scales::comma) + geom_smooth(method = lm, formula = y~x) + xlab("Bush Votes (log)") + ylab("Buchanan Votes")
+```
+```{r}
+
+# Representing the regression table as a dataframe (i.e., tidying the summary() output)
+model.table <- summary(model)$coefficients
+
+model.table |> kbl(col.names = c("Estimate", "Std. Error", "t value", "p value"), align = "c", booktabs = T, linesep="", digits = c(4, 4, 4, 4)) |> kable_classic(full_width = F, latex_options = c("HOLD_position"))
+```
+
+Let $Buchanan_i$ denote the number of Buchanan votes in any Florida county $i$ (during the 2000 election) and $Bush_i$ denote the number of Bush votes in any Florida county (also during the 2000 election). Our final population regression model is $$E[Buchanan_i | Bush_i] = \beta_0 + \beta_1\left(Bush_i\right).$$
+
+**Obtain a 95% prediction interval for the number of Buchanan votes in Palm Beach from this result—assuming the relationship is the same in this county as in the others**
+
+```{r}
+predict(model, newdata = data.frame(Bush2000 = 152846), interval = "prediction", level = 0.95)
+```
+
+Our prediction interval tells us that, based on this sample 95% of the time, the number of votes for Buchanan in the 2000 election should be between 364 and 830 votes, given that 152,846 people voted for Bush.
+
+
+**Assuming that some of the votes cast for Buchanan were intended as votes for Gore, use the prediction interval to give an estimate for the likely number of votes intended for Gore but cast for Buchanan.**
+
+There were 3407 votes for Buchanan, but our prediction interval tells us that the number of votes expected for Buchanan 95% of the time is between 364 and 830, so the likely number of votes intended for Gore but cast for Buchanan were between 3407-830 =  and 3407-364 =  
+
+
+
+----
+
+
 ```{r}
 #| include: false
 
@@ -39,8 +81,6 @@ election <- Sleuth2::ex0825
 # Creating a second dataset with Palm Beach County excluded
 election_wo_pb <- election |> filter(County != "Palm Beach")
 
-# Loading another dataset on wine consumption and heart disease mortality (deaths per 1000 individuals), just as an example
-wine <- Sleuth2::ex0823
 ```
 
 ### An example section heading
