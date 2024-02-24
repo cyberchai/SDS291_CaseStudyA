@@ -33,7 +33,12 @@ summary(model)
 ```{r}
 ggplot(data = election_wo_pb, aes(x = Bush2000, y = Buchanan2000)) +
   geom_point() +
-  ggtitle("Without Palm Beach") + scale_x_continuous(trans = "log10", labels = scales::comma) + geom_smooth(method = lm, formula = y~x) + xlab("Bush Votes (log)") + ylab("Buchanan Votes")
+  scale_x_continuous(trans = "log10", labels = scales::comma) + 
+  geom_smooth(method = lm, formula = y~x) +
+  xlab("Bush Votes (log)") +
+  ylab("Buchanan Votes") + 
+  labs(title = "Votes in the 2000 US Presidential Election", subtitle = "Bush and Buchanan only", caption = "Data Source: Statistical Sleuth")
+
 ```
 ```{r}
 
@@ -57,6 +62,46 @@ Our prediction interval tells us that, based on this sample 95% of the time, the
 **Assuming that some of the votes cast for Buchanan were intended as votes for Gore, use the prediction interval to give an estimate for the likely number of votes intended for Gore but cast for Buchanan.**
 
 There were 3407 votes for Buchanan, but our prediction interval tells us that the number of votes expected for Buchanan 95% of the time is between 364 and 830, so the likely number of votes intended for Gore but cast for Buchanan were between $3407-830 = 2577$ and $3407-364 = 3043$
+
+1. Most Appropriate Model
+
+### Bush vs Buchanan
+```{r}
+model_bvb <- lm(Buchanan2000 ~ Bush2000, data = election_wo_pb)
+a <- summary(model_bvb)$r.squared
+```
+
+### log(Bush) vs Buchanan
+```{r}
+model_lvb <- lm(Buchanan2000 ~ log(Bush2000), data = election_wo_pb)
+b <- summary(model_lvb)$r.squared
+```
+
+### log(Bush) vs log(Buchanan)
+```{r}
+model_lvl <- lm(log(Buchanan2000) ~ log(Bush2000), data = election_wo_pb)
+c <- summary(model_lvl)$r.squared
+```
+
+### Bush vs log(Buchanan)
+```{r}
+model_bvl <- lm(log(Buchanan2000) ~ Bush2000, data = election_wo_pb)
+d <- summary(model_bvl)$r.squared
+```
+
+```{r}
+rsq.table = data.frame(a, b, c, d)
+rsq.table
+```
+
+
+
+2. Goodness of Fit
+
+
+3. Prediction Interval
+
+4. Gore's Votes
 
 
 
