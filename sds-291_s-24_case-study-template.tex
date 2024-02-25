@@ -197,7 +197,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdftitle={{[}Your Informative Title Here{]}},
+  pdftitle={A Close Election: A Closer Look},
   pdfauthor={Sirohi Kumar and Chaira Harder},
   colorlinks=true,
   linkcolor={blue},
@@ -206,13 +206,13 @@
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
 
-\title{{[}Your Informative Title Here{]}}
+\title{A Close Election: A Closer Look}
 \author{Sirohi Kumar and Chaira Harder}
-\date{Invalid Date}
+\date{2024-02-22}
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, interior hidden, breakable, enhanced, frame hidden, sharp corners, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, frame hidden, boxrule=0pt, interior hidden, borderline west={3pt}{0pt}{shadecolor}, breakable, sharp corners]}{\end{tcolorbox}}\fi
 
 \hypertarget{introduction}{%
 \section{INTRODUCTION}\label{introduction}}
@@ -239,17 +239,6 @@ Buchanan (as the response variable) across several Florida counties.
 \hypertarget{results}{%
 \section{RESULTS}\label{results}}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(tidyverse)}
-\FunctionTok{library}\NormalTok{(Sleuth2) }
-\FunctionTok{library}\NormalTok{(kableExtra)  }
-\FunctionTok{library}\NormalTok{(broom)}
-\FunctionTok{library}\NormalTok{(performance)}
-\FunctionTok{library}\NormalTok{(ggplot2)}
-\end{Highlighting}
-\end{Shaded}
-
 \hypertarget{data-wrangling}{%
 \subsection{Data wrangling}\label{data-wrangling}}
 
@@ -260,16 +249,6 @@ data-wrangling process we removed one observation from the dataset. In
 order to generate a model without the Palm Beach county data, we removed
 the ``Palm Beach'\,' row. The dataset originally has 67 observations, so
 the dataset we used for this analysis has a total of 66 observations.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Loading the case study data}
-\NormalTok{election }\OtherTok{\textless{}{-}}\NormalTok{ Sleuth2}\SpecialCharTok{::}\NormalTok{ex0825}
-
-\CommentTok{\# Creating a second dataset with Palm Beach County excluded}
-\NormalTok{election\_wo\_pb }\OtherTok{\textless{}{-}}\NormalTok{ election }\SpecialCharTok{|\textgreater{}} \FunctionTok{filter}\NormalTok{(County }\SpecialCharTok{!=} \StringTok{"Palm Beach"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
 
 \hypertarget{explore-data}{%
 \subsection{Explore Data}\label{explore-data}}
@@ -356,8 +335,6 @@ ln(Buchanan) v ln(Bush)
 \hypertarget{visualize-new-model}{%
 \subsubsection{Visualize new model}\label{visualize-new-model}}
 
-\emph{describe the spread of the data in this version}
-
 \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-6-1.pdf}
 
 This new visualization shows that the natural log of Bush and Buchanan's
@@ -375,30 +352,37 @@ which is reflected by the high \(R^2\) value.
 Our selected model, in which both the Bush and Buchanan votes are
 logged, yields the greatest \(R^2\) value at \(0.8658343\). With its
 \(R^2\) value, it captures a stronger linear relationship than its
-comparison models used (Buchanan vs Bush, \(ln(Buchanan)\) vs Bush,
-Buchanan vs \(ln(Bush)\)) and also suggests a more proportional scaling
-between the votes, as we can see in the visual above.
+comparison models used (Buchanan vs Bush, ln(Buchanan) vs Bush, Buchanan
+vs ln(Bush)) and also suggests a more proportional scaling between the
+votes, as we can see in the visual above.
 
-To see if our our model is truly effective and the votes in the dataset
-are not random, we can use the Linearity Test, Homogeneity of Variance,
-as well as the Normality of Residuals.
+To see if our our model is truly effective and whether the votes in the
+dataset are truly not random -- that there's a correlation -- we can use
+the Linearity Test, Homogeneity of Variance, as well as the Normality of
+Residuals.
 
 \hypertarget{linearity-test}{%
 \paragraph{Linearity Test}\label{linearity-test}}
 
 \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-7-1.pdf}
 
-In this case, our data do not make a flat and horizontal reference line,
-thus we do not satisfy the linearity test.
+In this case, our data makes a relatively flat and horizontal reference
+line, thus satisfying the linearity test, meaning there is strong
+evidence for a linear relationship between our independent/explanatory
+variable \emph{Bush2000} and dependent/outcome \emph{Buchanan2000}
+variables.
 
 \hypertarget{homogeneity-of-variance}{%
 \paragraph{Homogeneity of variance}\label{homogeneity-of-variance}}
 
 \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-8-1.pdf}
 
-Again, we see that our data is not linear as the variance (the points in
-the plot) is scattered with no constant relationship. A linear
-relationship requires constant variance.
+A linear relationship requires constant variance. While our residuals
+are scattered, we do have constant variance across all fitted values
+(the green reference line is mostly horizontal and somewhat flat in the
+majority). Thus, we know on average the variance of the residuals does
+not systematically increase or decrease across our range of fitted
+values.
 
 \hypertarget{normality-of-residuals}{%
 \paragraph{Normality of Residuals}\label{normality-of-residuals}}
@@ -407,11 +391,11 @@ relationship requires constant variance.
 
 We see in the Normality of Residuals plot above that the data points for
 the sample quantile deviations vs the normal distribution quantiles do
-not make a horizontal line shape.
-
-Sources: -
-http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/
-- https://cran.r-project.org/web/packages/performance/index.html
+not make a horizontal line shape. If they were to make a horizontal line
+shape, it would indicate that the residuals from our model are perfectly
+normally distributed. So, our LVL model does not satisfy the Normality
+of Residuals, but this could just be a consequence of our transformation
+of the data.
 
 \hypertarget{predictions}{%
 \subsection{Predictions}\label{predictions}}
@@ -419,11 +403,11 @@ http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear
 \hypertarget{regression-line}{%
 \subsubsection{Regression Line}\label{regression-line}}
 
-Let \(Bush_i\) denote the \(ln\) number of Bush votes in any Florida
+Let \(Bush_i\) denote the natural log of Bush votes in any Florida
 county during the 2000 election. Using the regression model from above,
-we can predict \(Buchanan_i\), the \(ln\) of the number of Buchanan
-votes in any Florida county \(i\) (during the 2000 election) based on
-any \(Bush_i\) value. Using this regression model, we can find
+we can predict \(Buchanan_i\), the natural log of Buchanan votes in any
+Florida county \(i\) (during the 2000 election) based on any \(Bush_i\)
+value. Using this regression model, we can find
 \[Buchanan_i = \beta_0 + \beta_1\left(Bush_i\right).\]
 
 \begin{table}[H]
@@ -439,10 +423,10 @@ log(Bush2000) & 0.7310 & 0.0360 & 20.3229 & 0\\
 \end{table}
 
 This linear model predicts that for each increase in \(ln(Bush_i)\),
-that \(ln(Buchanan_i)\) should increase by \(0.7310\) votes. We can now
-use this model to predict the number of votes Buchanan should have
-received in Palm Beach County, if Palm Beach county was the same as the
-other Florida counties.
+that \(ln(Buchanan_i)\) should increase by \(0.7310\). We can now use
+this model to predict the number of votes Buchanan should have received
+in Palm Beach County, if Palm Beach county was the same as the other
+Florida counties.
 
 \hypertarget{prediction-interval}{%
 \subsubsection{Prediction Interval}\label{prediction-interval}}
@@ -528,12 +512,6 @@ again, this is not a causal model.
 \hypertarget{r-appendix}{%
 \section{R APPENDIX}\label{r-appendix}}
 
-\emph{Copy and paste all code that you used for your case study into one
-chunk at the end of your written report. Before submitting your case
-study, take one final look at the R Appendix and make sure that all code
-is clearly visible. If you see a line running off the side of the PDF,
-please split the code over multiple lines using a linebreak.}
-
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# importing our necessary libraries}
@@ -595,9 +573,176 @@ please split the code over multiple lines using a linebreak.}
 \DocumentationTok{\#\# log(Bush) vs log(Buchanan)}
 \NormalTok{model\_lvl }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{log}\NormalTok{(Buchanan2000) }\SpecialCharTok{\textasciitilde{}} \FunctionTok{log}\NormalTok{(Bush2000), }\AttributeTok{data =}\NormalTok{ election\_wo\_pb)}
 \NormalTok{LVL }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model\_lvl)}\SpecialCharTok{$}\NormalTok{r.squared}
+
+\CommentTok{\# creating a table of our R\^{}2 values for our 4 models:}
+\NormalTok{rsq.table }\OtherTok{=} \FunctionTok{data.frame}\NormalTok{(BVB, LVB, BVL, LVL)}
+\NormalTok{names }\OtherTok{=} \FunctionTok{c}\NormalTok{(}\StringTok{"Buchanan v Bush"}\NormalTok{, }\StringTok{"ln(Buchanan) v Bush"}\NormalTok{, }\StringTok{"Buchanan v ln(Bush)"}\NormalTok{, }\StringTok{"ln(Buchanan) v ln(Bush)"}\NormalTok{)}
+\NormalTok{caption }\OtherTok{=} \StringTok{"R{-}Squared (correlation) values for various models"}
+
+\NormalTok{rsq.table }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =}\NormalTok{ caption, }\AttributeTok{col.names =}\NormalTok{ names)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{longtable}[]{@{}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2000}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3000}}@{}}
+\caption{R-Squared (correlation) values for various
+models}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+Buchanan v Bush
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ln(Buchanan) v Bush
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Buchanan v ln(Bush)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ln(Buchanan) v ln(Bush)
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+Buchanan v Bush
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ln(Buchanan) v Bush
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Buchanan v ln(Bush)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ln(Buchanan) v ln(Bush)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0.7517819 & 0.6790001 & 0.571179 & 0.8658343 \\
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# visualizing our new model:}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ election\_wo\_pb, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{log}\NormalTok{(Bush2000), }\AttributeTok{y =} \FunctionTok{log}\NormalTok{(Buchanan2000))) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{trans =} \StringTok{"log"}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ scales}\SpecialCharTok{::}\NormalTok{comma) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =}\NormalTok{ lm, }\AttributeTok{formula =}\NormalTok{ y}\SpecialCharTok{\textasciitilde{}}\NormalTok{x) }\SpecialCharTok{+}
+  \FunctionTok{xlab}\NormalTok{(}\StringTok{"Bush Votes (ln)"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{ylab}\NormalTok{(}\StringTok{"Buchanan Votes (ln)"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Votes in the 2000 US Presidential Election"}\NormalTok{, }\AttributeTok{subtitle =} \StringTok{"Bush and Buchanan only"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Data Source: Statistical Sleuth"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-12-2.pdf}
+
+}
+
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Looking at our goodness of fit:}
+\CommentTok{\# Linearity test:}
+\CommentTok{\# this uses the performance library}
+\FunctionTok{check\_model}\NormalTok{(model\_lvl, }\AttributeTok{check =} \FunctionTok{c}\NormalTok{(}\StringTok{"linearity"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-12-3.pdf}
+
+}
+
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# this is the default linearity plot which is harder to read:}
+\CommentTok{\# plot(model\_lvl, 1)}
+
+\CommentTok{\# Homogeneity of Variance}
+\CommentTok{\# plot(model\_lvl, 3)}
+\FunctionTok{check\_model}\NormalTok{(model\_lvl, }\AttributeTok{check =} \FunctionTok{c}\NormalTok{(}\StringTok{"homogeneity"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-12-4.pdf}
+
+}
+
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Normality of Residuals}
+\FunctionTok{check\_model}\NormalTok{(model\_lvl, }\AttributeTok{check =} \FunctionTok{c}\NormalTok{(}\StringTok{"qq"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-12-5.pdf}
+
+}
+
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# plot(model\_lvl, 2)}
+
+\CommentTok{\# and some of our sources:}
+\CommentTok{\# Sources: }
+\CommentTok{\# {-} http://www.sthda.com/english/articles/39{-}regression{-}model{-}diagnostics/161{-}linear{-}regression{-}assumptions{-}and{-}diagnostics{-}in{-}r{-}essentials/}
+\CommentTok{\# {-} https://cran.r{-}project.org/web/packages/performance/index.html}
+
+\CommentTok{\# our regression line summary for our chosen model}
+\NormalTok{model.table }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model\_lvl)}\SpecialCharTok{$}\NormalTok{coefficients}
+
+\NormalTok{model.table }\SpecialCharTok{|\textgreater{}} 
+  \FunctionTok{kbl}\NormalTok{(}\AttributeTok{col.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"Estimate"}\NormalTok{, }\StringTok{"Std. Error"}\NormalTok{, }\StringTok{"t value"}\NormalTok{, }\StringTok{"p value"}\NormalTok{), }
+      \AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{booktabs =}\NormalTok{ T, }\AttributeTok{linesep=}\StringTok{""}\NormalTok{, }\AttributeTok{digits =} \FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{kable\_classic}\NormalTok{(}\AttributeTok{full\_width =}\NormalTok{ F, }\AttributeTok{latex\_options =} \FunctionTok{c}\NormalTok{(}\StringTok{"HOLD\_position"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\begin{tabular}[t]{lcccc}
+\toprule
+  & Estimate & Std. Error & t value & p value\\
+\midrule
+(Intercept) & -2.3415 & 0.3544 & -6.6066 & 0\\
+log(Bush2000) & 0.7310 & 0.0360 & 20.3229 & 0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# our 95\% prediction interval for the number of Buchanan votes}
+\FunctionTok{predict}\NormalTok{(model\_lvl, }\AttributeTok{newdata =} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Bush2000 =} \DecValTok{152846}\NormalTok{), }\AttributeTok{interval =} \StringTok{"prediction"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kbl}\NormalTok{(}\AttributeTok{col.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"center"}\NormalTok{, }\StringTok{"lower"}\NormalTok{, }\StringTok{"upper"}\NormalTok{),}
+      \AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{booktabs =}\NormalTok{ T, }\AttributeTok{linesep=}\StringTok{""}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_classic}\NormalTok{(}\AttributeTok{full\_width =}\NormalTok{ F, }\AttributeTok{latex\_options =} \FunctionTok{c}\NormalTok{(}\StringTok{"HOLD\_position"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\begin{tabular}[t]{ccc}
+\toprule
+center & lower & upper\\
+\midrule
+6.384143 & 5.524656 & 7.24363\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 

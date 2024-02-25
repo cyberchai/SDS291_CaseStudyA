@@ -1,7 +1,7 @@
 ---
-title: "[Your Informative Title Here]"
+title: "A Close Election: A Closer Look"
 author: "Sirohi Kumar and Chaira Harder"
-date: "Case Study 1: February 22, 2024"
+date: "February 22, 2024"
 format: 
   pdf:
     keep-tex: true
