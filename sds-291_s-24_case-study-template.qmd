@@ -17,11 +17,6 @@ format:
       - bottom=1in
 ---
 
-*Your written short report should be the first thing your reader encounters in your case study document. While you may choose to label each of the required components/sections of the short report with its own header (see below for an example of creating a header in Quarto), you do not need to do so provided that all of the required information is included. Your report should be self-contained and written in such a way that a quantitatively inclined friend (who has taken or is taking SDS 291) could follow what you did without necessarily knowing anything about the 2000 presidential election otherwise.*
-
-*As you write your report, you may wish to reference the guide to typesetting regression lines in Quarto using LaTeX (linked at the top of our class Moodle page), the Quarto help page for formatting documents using Markdown (), and the Quarto help page for customizing the output from executed code chunks.*
-
-----
 
 # INTRODUCTION
 
@@ -29,12 +24,8 @@ The choice of American President – and to a lesser extent Congress – can det
 
 The cause of this upset can be attributed to many factors, key among which has been identified by analysts was the unique design of the ballot in Palm Beach County. Many Democrat voters complained the layout of the ballot led them to accidentally choose the Reform Party Candidate Pat Buchanan, who was projected to receive many fewer votes than he did in Palm Beach County. In this case study, we attempt to determine if there’s evidence that Buchanan received an uncommonly high number of votes in the 2000 election. We do so by analyzing the relationship between the votes received by Bush (as the explanatory variable) and Buchanan (as the response variable) across several Florida counties. 
 
-
 # RESULTS
 
-## Generate Data
-
-### load libraries
 ```{r}
 #| message: FALSE
 #| warning: FALSE
@@ -47,7 +38,7 @@ library(performance)
 library(ggplot2)
 ```
 
-### Data wrangling
+## Data wrangling
 
 The data used in this case study comes from the Sleuth2 library in R. The dataset is of the number of votes for candidates George Bush and Pat Buchanan in the 2000 election from each county in Florida. For our data-wrangling process we removed one observation from the dataset. In order to generate a model without the Palm Beach county data, we removed the “Palm Beach'' row. The dataset originally has 67 observations, so the dataset we used for this analysis has a total of 66 observations. 
 
@@ -134,21 +125,22 @@ ggplot(data = election_wo_pb, aes(x = log(Bush2000), y = log(Buchanan2000))) +
   theme_minimal()
 
 ```
+This new visualization shows that the natural log of Bush and Buchanan’s votes have a much more linear relationship. While there’s slightly more variation towards the beginning of both axes, overall there’s a high level of correlation between the logged vote counts for both candidates, which is reflected by the high $R^2$ value.
 
 ## Goodness of Fit
 
 ### Residuals
 
-Our selected model, in which both the Bush and Buchanan votes are logged, yields the greatest $R^2$ value at $0.8658343$. With its $R^2$ value, it captures a stronger linear relationship than its comparison models used (Buchanan vs Bush, $ln(Buchanan)$ vs Bush, Buchanan vs $ln(Bush)$) and also suggests a more proportional scaling between the votes, as we can see in the visual above.
+Our selected model, in which both the Bush and Buchanan votes are logged, yields the greatest $R^2$ value at $0.8658343$. With its $R^2$ value, it captures a stronger linear relationship than its comparison models used (Buchanan vs Bush, ln(Buchanan) vs Bush, Buchanan vs ln(Bush)) and also suggests a more proportional scaling between the votes, as we can see in the visual above.
 
-To see if our our model is truly effective and the votes in the dataset are not random, we can use the Linearity Test, Homogeneity of Variance, as well as the Normality of Residuals.
+To see if our our model is truly effective and whether the votes in the dataset are truly not random -- that there's a correlation -- we can use the Linearity Test, Homogeneity of Variance, as well as the Normality of Residuals.
 
 #### Linearity Test
 ```{r echo=FALSE}
 check_model(model_lvl, check = c("linearity"))
 # plot(model_lvl, 1)
 ```
-In this case, our data do not make a flat and horizontal reference line, thus we do not satisfy the linearity test.
+In this case, our data does not make a flat and horizontal reference line, thus it does not satisfy the linearity test, meaning *what does the linearity test prove*.
 
 #### Homogeneity of variance
 ```{r echo=FALSE}
@@ -158,14 +150,16 @@ check_model(model_lvl, check = c("homogeneity"))
 
 ```
 
-Again, we see that our data is not linear as the variance (the points in the plot) is scattered with no constant relationship. A linear relationship requires constant variance.
+A linear relationship requires constant variance. While our residuals aren't scattered with constant variance across all fitted values, there is still a large amount of variance. Thus, *we can conclude...*
 
 #### Normality of Residuals
 ```{r echo=FALSE}
 check_model(model_lvl, check = c("qq"))
 # plot(model_lvl, 2)
 ```
-We see in the Normality of Residuals plot above that the data points for the sample quantile deviations vs the normal distribution quantiles do not make a horizontal line shape.
+We see in the Normality of Residuals plot above that the data points for the sample quantile deviations vs the normal distribution quantiles do not make a horizontal line shape. *If they made a horizontal line shape...*
+
+*We've completed 3 tests to determine how *
 
 Sources: 
 - http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/
@@ -209,7 +203,7 @@ upper: $e^{7.24363} = 1399.164$
 
 Our prediction interval tells us that, based on this sample, 95% of the time, the number of votes for Buchanan in the 2000 election should be between 250.8 and 1399.164 votes, given that 152,846 people voted for Bush.
 
-However, in the 2000 election, Buchanan received 3407 votes, which is over twice as large as the upper bound of our interval. This shows that Palm Beach county's votes for Bush and Buchanan are highly irregular compared to other Florida counties. 
+However, in the 2000 election, Buchanan received 3407 votes, which is over twice as large as the upper bound of our interval. *This indicates that Palm Beach county's votes for Buchanan, based on Bush's votes, are highly irregular compared to other Florida counties.* 
 
 ## Gore's Votes
 
@@ -235,36 +229,53 @@ However, we can’t make a conclusive claim that this is the case. First of all,
 *Copy and paste all code that you used for your case study into one chunk at the end of your written report. Before submitting your case study, take one final look at the R Appendix and make sure that all code is clearly visible. If you see a line running off the side of the PDF, please split the code over multiple lines using a linebreak.*
 
 ```{r}
-# #| message: FALSE
-# #| warning: FALSE
-# 
-# # Loading necessary packages
-# library(tidyverse)
-# library(Sleuth2)
-# library(broom)        
-# library(kableExtra)   
-# 
-# # Loading the case study data
-# election <- Sleuth2::ex0825
-# 
-# # Creating a second dataset with Palm Beach County excluded
-# election_wo_pb <- election |> filter(County != "Palm Beach")
-# 
-# # Loading another dataset on wine consumption and heart disease mortality
-# wine <- Sleuth2::ex0823
-# 
-# # Creating a scatterplot for the relationship between mortality and wine consumption
-# wine |> ggplot(aes(x = Wine, y = Mortality)) + geom_point() + 
-#   ggtitle("Association between wine consumption and mortality rates.")
-# 
-# # Fitting and summarizing the regression line for mean mortality 
-# # as a function of wine consumption
-# wine.lm <- lm(Mortality ~ Wine, data = wine)
-# wine.lm.table <- wine.lm |> tidy()
-# wine.lm.table |> kbl(col.names = c("Name for Col. 1", "Name for Col. 2", 
-#                                    "Name for Col. 3", "Name for Col. 4", 
-#                                    "Name for Col. 5"), 
-#                      align = "c", booktabs = T, linesep="", 
-#                      digits = c(2, 2, 2, 4)) |> 
-#   kable_classic(full_width = F, latex_options = c("HOLD_position"))
+# importing our necessary libraries
+library(tidyverse)
+# Sleuth2 contains the data used in this analysis
+library(Sleuth2) 
+# to make tables in R
+library(kableExtra) 
+# for data wrangling
+library(broom)
+# for residual testing
+library(performance)
+# for our plot visualizations
+library(ggplot2)
+
+# --------------
+
+# Loading the case study data
+election <- Sleuth2::ex0825
+
+# data wrangling:
+# Creating a second dataset EXCLUDING Palm Beach County 
+election_wo_pb <- election |> filter(County != "Palm Beach")
+
+# data exploration and visualization: 
+# visualizing our initial data using a scatterplot
+ggplot(data = election_wo_pb, aes(x = Bush2000, y = Buchanan2000)) +
+  geom_point() +
+  scale_x_continuous(labels = scales::comma) + 
+  xlab("Bush Votes") +
+  ylab("Buchanan Votes") + 
+  labs(title = "Votes in the 2000 US Presidential Election", subtitle = "Bush and Buchanan only", caption = "Data Source: Statistical Sleuth") +
+  theme_minimal()
+
+## Bush vs Buchanan
+model_bvb <- lm(Buchanan2000 ~ Bush2000, data = election_wo_pb)
+BVB <- summary(model_bvb)$r.squared
+
+## log(Bush) vs Buchanan
+model_lvb <- lm(Buchanan2000 ~ log(Bush2000), data = election_wo_pb)
+LVB <- summary(model_lvb)$r.squared
+
+## Bush vs log(Buchanan)
+model_bvl <- lm(log(Buchanan2000) ~ Bush2000, data = election_wo_pb)
+BVL <- summary(model_bvl)$r.squared
+
+## log(Bush) vs log(Buchanan)
+model_lvl <- lm(log(Buchanan2000) ~ log(Bush2000), data = election_wo_pb)
+LVL <- summary(model_lvl)$r.squared
+
+
 ```

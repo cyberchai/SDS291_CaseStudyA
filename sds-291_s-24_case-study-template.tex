@@ -212,25 +212,7 @@
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, interior hidden, sharp corners, enhanced, frame hidden, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt]}{\end{tcolorbox}}\fi
-
-\emph{Your written short report should be the first thing your reader
-encounters in your case study document. While you may choose to label
-each of the required components/sections of the short report with its
-own header (see below for an example of creating a header in Quarto),
-you do not need to do so provided that all of the required information
-is included. Your report should be self-contained and written in such a
-way that a quantitatively inclined friend (who has taken or is taking
-SDS 291) could follow what you did without necessarily knowing anything
-about the 2000 presidential election otherwise.}
-
-\emph{As you write your report, you may wish to reference the guide to
-typesetting regression lines in Quarto using LaTeX (linked at the top of
-our class Moodle page), the Quarto help page for formatting documents
-using Markdown (), and the Quarto help page for customizing the output
-from executed code chunks.}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, interior hidden, breakable, enhanced, frame hidden, sharp corners, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
 
 \hypertarget{introduction}{%
 \section{INTRODUCTION}\label{introduction}}
@@ -257,12 +239,6 @@ Buchanan (as the response variable) across several Florida counties.
 \hypertarget{results}{%
 \section{RESULTS}\label{results}}
 
-\hypertarget{generate-data}{%
-\subsection{Generate Data}\label{generate-data}}
-
-\hypertarget{load-libraries}{%
-\subsubsection{load libraries}\label{load-libraries}}
-
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(tidyverse)}
@@ -275,7 +251,7 @@ Buchanan (as the response variable) across several Florida counties.
 \end{Shaded}
 
 \hypertarget{data-wrangling}{%
-\subsubsection{Data wrangling}\label{data-wrangling}}
+\subsection{Data wrangling}\label{data-wrangling}}
 
 The data used in this case study comes from the Sleuth2 library in R.
 The dataset is of the number of votes for candidates George Bush and Pat
@@ -384,6 +360,12 @@ ln(Buchanan) v ln(Bush)
 
 \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-6-1.pdf}
 
+This new visualization shows that the natural log of Bush and Buchanan's
+votes have a much more linear relationship. While there's slightly more
+variation towards the beginning of both axes, overall there's a high
+level of correlation between the logged vote counts for both candidates,
+which is reflected by the high \(R^2\) value.
+
 \hypertarget{goodness-of-fit}{%
 \subsection{Goodness of Fit}\label{goodness-of-fit}}
 
@@ -490,9 +472,9 @@ between 250.8 and 1399.164 votes, given that 152,846 people voted for
 Bush.
 
 However, in the 2000 election, Buchanan received 3407 votes, which is
-over twice as large as the upper bound of our interval. This shows that
-Palm Beach county's votes for Bush and Buchanan are highly irregular
-compared to other Florida counties.
+over twice as large as the upper bound of our interval. \emph{This
+indicates that Palm Beach county's votes for Buchanan, based on Bush's
+votes, are highly irregular compared to other Florida counties.}
 
 \hypertarget{gores-votes}{%
 \subsection{Gore's Votes}\label{gores-votes}}
@@ -554,38 +536,65 @@ please split the code over multiple lines using a linebreak.}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# \#| message: FALSE}
-\CommentTok{\# \#| warning: FALSE}
-\CommentTok{\# }
-\CommentTok{\# \# Loading necessary packages}
-\CommentTok{\# library(tidyverse)}
-\CommentTok{\# library(Sleuth2)}
-\CommentTok{\# library(broom)        }
-\CommentTok{\# library(kableExtra)   }
-\CommentTok{\# }
-\CommentTok{\# \# Loading the case study data}
-\CommentTok{\# election \textless{}{-} Sleuth2::ex0825}
-\CommentTok{\# }
-\CommentTok{\# \# Creating a second dataset with Palm Beach County excluded}
-\CommentTok{\# election\_wo\_pb \textless{}{-} election |\textgreater{} filter(County != "Palm Beach")}
-\CommentTok{\# }
-\CommentTok{\# \# Loading another dataset on wine consumption and heart disease mortality}
-\CommentTok{\# wine \textless{}{-} Sleuth2::ex0823}
-\CommentTok{\# }
-\CommentTok{\# \# Creating a scatterplot for the relationship between mortality and wine consumption}
-\CommentTok{\# wine |\textgreater{} ggplot(aes(x = Wine, y = Mortality)) + geom\_point() + }
-\CommentTok{\#   ggtitle("Association between wine consumption and mortality rates.")}
-\CommentTok{\# }
-\CommentTok{\# \# Fitting and summarizing the regression line for mean mortality }
-\CommentTok{\# \# as a function of wine consumption}
-\CommentTok{\# wine.lm \textless{}{-} lm(Mortality \textasciitilde{} Wine, data = wine)}
-\CommentTok{\# wine.lm.table \textless{}{-} wine.lm |\textgreater{} tidy()}
-\CommentTok{\# wine.lm.table |\textgreater{} kbl(col.names = c("Name for Col. 1", "Name for Col. 2", }
-\CommentTok{\#                                    "Name for Col. 3", "Name for Col. 4", }
-\CommentTok{\#                                    "Name for Col. 5"), }
-\CommentTok{\#                      align = "c", booktabs = T, linesep="", }
-\CommentTok{\#                      digits = c(2, 2, 2, 4)) |\textgreater{} }
-\CommentTok{\#   kable\_classic(full\_width = F, latex\_options = c("HOLD\_position"))}
+\CommentTok{\# importing our necessary libraries}
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\CommentTok{\# Sleuth2 contains the data used in this analysis}
+\FunctionTok{library}\NormalTok{(Sleuth2) }
+\CommentTok{\# to make tables in R}
+\FunctionTok{library}\NormalTok{(kableExtra) }
+\CommentTok{\# for data wrangling}
+\FunctionTok{library}\NormalTok{(broom)}
+\CommentTok{\# for residual testing}
+\FunctionTok{library}\NormalTok{(performance)}
+\CommentTok{\# for our plot visualizations}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+
+\CommentTok{\# {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+
+\CommentTok{\# Loading the case study data}
+\NormalTok{election }\OtherTok{\textless{}{-}}\NormalTok{ Sleuth2}\SpecialCharTok{::}\NormalTok{ex0825}
+
+\CommentTok{\# data wrangling:}
+\CommentTok{\# Creating a second dataset EXCLUDING Palm Beach County }
+\NormalTok{election\_wo\_pb }\OtherTok{\textless{}{-}}\NormalTok{ election }\SpecialCharTok{|\textgreater{}} \FunctionTok{filter}\NormalTok{(County }\SpecialCharTok{!=} \StringTok{"Palm Beach"}\NormalTok{)}
+
+\CommentTok{\# data exploration and visualization: }
+\CommentTok{\# visualizing our initial data using a scatterplot}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ election\_wo\_pb, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Bush2000, }\AttributeTok{y =}\NormalTok{ Buchanan2000)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{labels =}\NormalTok{ scales}\SpecialCharTok{::}\NormalTok{comma) }\SpecialCharTok{+} 
+  \FunctionTok{xlab}\NormalTok{(}\StringTok{"Bush Votes"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{ylab}\NormalTok{(}\StringTok{"Buchanan Votes"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Votes in the 2000 US Presidential Election"}\NormalTok{, }\AttributeTok{subtitle =} \StringTok{"Bush and Buchanan only"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Data Source: Statistical Sleuth"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-12-1.pdf}
+
+}
+
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Bush vs Buchanan}
+\NormalTok{model\_bvb }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Buchanan2000 }\SpecialCharTok{\textasciitilde{}}\NormalTok{ Bush2000, }\AttributeTok{data =}\NormalTok{ election\_wo\_pb)}
+\NormalTok{BVB }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model\_bvb)}\SpecialCharTok{$}\NormalTok{r.squared}
+
+\DocumentationTok{\#\# log(Bush) vs Buchanan}
+\NormalTok{model\_lvb }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Buchanan2000 }\SpecialCharTok{\textasciitilde{}} \FunctionTok{log}\NormalTok{(Bush2000), }\AttributeTok{data =}\NormalTok{ election\_wo\_pb)}
+\NormalTok{LVB }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model\_lvb)}\SpecialCharTok{$}\NormalTok{r.squared}
+
+\DocumentationTok{\#\# Bush vs log(Buchanan)}
+\NormalTok{model\_bvl }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{log}\NormalTok{(Buchanan2000) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ Bush2000, }\AttributeTok{data =}\NormalTok{ election\_wo\_pb)}
+\NormalTok{BVL }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model\_bvl)}\SpecialCharTok{$}\NormalTok{r.squared}
+
+\DocumentationTok{\#\# log(Bush) vs log(Buchanan)}
+\NormalTok{model\_lvl }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{log}\NormalTok{(Buchanan2000) }\SpecialCharTok{\textasciitilde{}} \FunctionTok{log}\NormalTok{(Bush2000), }\AttributeTok{data =}\NormalTok{ election\_wo\_pb)}
+\NormalTok{LVL }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(model\_lvl)}\SpecialCharTok{$}\NormalTok{r.squared}
 \end{Highlighting}
 \end{Shaded}
 
