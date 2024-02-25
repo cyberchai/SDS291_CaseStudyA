@@ -26,7 +26,7 @@ The cause of this upset can be attributed to many factors, key among which has b
 
 # RESULTS
 
-```{r}
+```{r echo=FALSE}
 #| message: FALSE
 #| warning: FALSE
 
@@ -42,7 +42,7 @@ library(ggplot2)
 
 The data used in this case study comes from the Sleuth2 library in R. The dataset is of the number of votes for candidates George Bush and Pat Buchanan in the 2000 election from each county in Florida. For our data-wrangling process we removed one observation from the dataset. In order to generate a model without the Palm Beach county data, we removed the “Palm Beach'' row. The dataset originally has 67 observations, so the dataset we used for this analysis has a total of 66 observations. 
 
-```{r}
+```{r echo=FALSE}
 # Loading the case study data
 election <- Sleuth2::ex0825
 
@@ -112,7 +112,6 @@ rsq.table %>% kable(caption = caption, col.names = names)
 
 ### Visualize new model
 
-*describe the spread of the data in this version*
 ```{r echo=FALSE}
 
 ggplot(data = election_wo_pb, aes(x = log(Bush2000), y = log(Buchanan2000))) +
@@ -140,7 +139,7 @@ To see if our our model is truly effective and whether the votes in the dataset 
 check_model(model_lvl, check = c("linearity"))
 # plot(model_lvl, 1)
 ```
-In this case, our data does not make a flat and horizontal reference line, thus it does not satisfy the linearity test, meaning *what does the linearity test prove*.
+In this case, our data makes a relatively flat and horizontal reference line, thus satisfying the linearity test, meaning there is strong evidence for a linear relationship between our independent/explanatory variable *Bush2000* and dependent/outcome *Buchanan2000* variables.
 
 #### Homogeneity of variance
 ```{r echo=FALSE}
@@ -150,26 +149,20 @@ check_model(model_lvl, check = c("homogeneity"))
 
 ```
 
-A linear relationship requires constant variance. While our residuals aren't scattered with constant variance across all fitted values, there is still a large amount of variance. Thus, *we can conclude...*
+A linear relationship requires constant variance. While our residuals are scattered, we do have  constant variance across all fitted values (the green reference line is mostly horizontal and somewhat flat in the majority). Thus, we know on average the variance of the residuals does not systematically increase or decrease across our range of fitted values.
 
 #### Normality of Residuals
 ```{r echo=FALSE}
 check_model(model_lvl, check = c("qq"))
 # plot(model_lvl, 2)
 ```
-We see in the Normality of Residuals plot above that the data points for the sample quantile deviations vs the normal distribution quantiles do not make a horizontal line shape. *If they made a horizontal line shape...*
-
-*We've completed 3 tests to determine how *
-
-Sources: 
-- http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/
-- https://cran.r-project.org/web/packages/performance/index.html
+We see in the Normality of Residuals plot above that the data points for the sample quantile deviations vs the normal distribution quantiles do not make a horizontal line shape. If they were to make a horizontal line shape, it would indicate that the residuals from our model are perfectly normally distributed. So, our LVL model does not satisfy the Normality of Residuals, but this could just be a consequence of our transformation of the data.
 
 ## Predictions
 
 ### Regression Line
 
-Let $Bush_i$ denote the $ln$ number of Bush votes in any Florida county during the 2000 election. Using the regression model from above, we can predict $Buchanan_i$, the $ln$ of the number of Buchanan votes in any Florida county $i$ (during the 2000 election) based on any $Bush_i$ value. Using this regression model, we can find $$Buchanan_i = \beta_0 + \beta_1\left(Bush_i\right).$$ 
+Let $Bush_i$ denote the natural log of Bush votes in any Florida county during the 2000 election. Using the regression model from above, we can predict $Buchanan_i$, the natural log of Buchanan votes in any Florida county $i$ (during the 2000 election) based on any $Bush_i$ value. Using this regression model, we can find $$Buchanan_i = \beta_0 + \beta_1\left(Bush_i\right).$$ 
 
 ```{r echo=FALSE}
 
@@ -182,7 +175,7 @@ model.table |>
 
 ```
 
-This linear model predicts that for each increase in $ln(Bush_i)$, that $ln(Buchanan_i)$ should increase by $0.7310$ votes. We can now use this model to predict the number of votes Buchanan should have received in Palm Beach County, if Palm Beach county was the same as the other Florida counties. 
+This linear model predicts that for each increase in $ln(Bush_i)$, that $ln(Buchanan_i)$ should increase by $0.7310$. We can now use this model to predict the number of votes Buchanan should have received in Palm Beach County, if Palm Beach county was the same as the other Florida counties. 
 
 ### Prediction Interval
 
@@ -225,8 +218,6 @@ However, we can’t make a conclusive claim that this is the case. First of all,
 
 
 # R APPENDIX
-
-*Copy and paste all code that you used for your case study into one chunk at the end of your written report. Before submitting your case study, take one final look at the R Appendix and make sure that all code is clearly visible. If you see a line running off the side of the PDF, please split the code over multiple lines using a linebreak.*
 
 ```{r}
 # importing our necessary libraries
@@ -277,5 +268,55 @@ BVL <- summary(model_bvl)$r.squared
 model_lvl <- lm(log(Buchanan2000) ~ log(Bush2000), data = election_wo_pb)
 LVL <- summary(model_lvl)$r.squared
 
+# creating a table of our R^2 values for our 4 models:
+rsq.table = data.frame(BVB, LVB, BVL, LVL)
+names = c("Buchanan v Bush", "ln(Buchanan) v Bush", "Buchanan v ln(Bush)", "ln(Buchanan) v ln(Bush)")
+caption = "R-Squared (correlation) values for various models"
+
+rsq.table %>% kable(caption = caption, col.names = names)
+
+# visualizing our new model:
+ggplot(data = election_wo_pb, aes(x = log(Bush2000), y = log(Buchanan2000))) +
+  geom_point() +
+  scale_x_continuous(trans = "log", labels = scales::comma) + 
+  geom_smooth(method = lm, formula = y~x) +
+  xlab("Bush Votes (ln)") +
+  ylab("Buchanan Votes (ln)") + 
+  labs(title = "Votes in the 2000 US Presidential Election", subtitle = "Bush and Buchanan only", caption = "Data Source: Statistical Sleuth") +
+  theme_minimal()
+
+# Looking at our goodness of fit:
+# Linearity test:
+# this uses the performance library
+check_model(model_lvl, check = c("linearity"))
+# this is the default linearity plot which is harder to read:
+# plot(model_lvl, 1)
+
+# Homogeneity of Variance
+# plot(model_lvl, 3)
+check_model(model_lvl, check = c("homogeneity"))
+
+# Normality of Residuals
+check_model(model_lvl, check = c("qq"))
+# plot(model_lvl, 2)
+
+# and some of our sources:
+# Sources: 
+# - http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/
+# - https://cran.r-project.org/web/packages/performance/index.html
+
+# our regression line summary for our chosen model
+model.table <- summary(model_lvl)$coefficients
+
+model.table |> 
+  kbl(col.names = c("Estimate", "Std. Error", "t value", "p value"), 
+      align = "c", booktabs = T, linesep="", digits = c(4, 4, 4, 4)) |>
+  kable_classic(full_width = F, latex_options = c("HOLD_position"))
+
+# our 95% prediction interval for the number of Buchanan votes
+predict(model_lvl, newdata = data.frame(Bush2000 = 152846), interval = "prediction", level = 0.95) %>%
+  kbl(col.names = c("center", "lower", "upper"),
+      align = "c", booktabs = T, linesep="") %>%
+  kable_classic(full_width = F, latex_options = c("HOLD_position"))
 
 ```
