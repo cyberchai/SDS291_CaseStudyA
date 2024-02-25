@@ -23,179 +23,261 @@ format:
 
 ----
 
-## Data Exploration
+# INTRODUCTION
 
+# RESULTS
+
+## Generate Data
+
+### load libraries
 ```{r}
-model <- lm(Buchanan2000 ~ Bush2000, data = election_wo_pb)
-summary(model)
+#| message: FALSE
+#| warning: FALSE
+
+library(tidyverse)
+library(Sleuth2) 
+library(kableExtra)  
+library(broom)
+library(performance)
 ```
 
+### data wrangling
+
+*include paragraph on data wrangling here*
 ```{r}
+# Loading the case study data
+election <- Sleuth2::ex0825
+
+# Creating a second dataset with Palm Beach County excluded
+election_wo_pb <- election |> filter(County != "Palm Beach")
+
+```
+
+## Explore Data
+
+*describe the data layout + clearly outline the explanatory and response variables*
+```{r echo=FALSE}
+
 ggplot(data = election_wo_pb, aes(x = Bush2000, y = Buchanan2000)) +
   geom_point() +
-  scale_x_continuous(trans = "log10", labels = scales::comma) + 
-  geom_smooth(method = lm, formula = y~x) +
-  xlab("Bush Votes (log)") +
+  scale_x_continuous(labels = scales::comma) + 
+  xlab("Bush Votes") +
   ylab("Buchanan Votes") + 
-  labs(title = "Votes in the 2000 US Presidential Election", subtitle = "Bush and Buchanan only", caption = "Data Source: Statistical Sleuth")
+  labs(title = "Votes in the 2000 US Presidential Election", subtitle = "Bush and Buchanan only", caption = "Data Source: Statistical Sleuth") +
+  theme_minimal()
 
 ```
-```{r}
 
-# Representing the regression table as a dataframe (i.e., tidying the summary() output)
-model.table <- summary(model)$coefficients
+## Find Most Appropriate Model
 
-model.table |> kbl(col.names = c("Estimate", "Std. Error", "t value", "p value"), align = "c", booktabs = T, linesep="", digits = c(4, 4, 4, 4)) |> kable_classic(full_width = F, latex_options = c("HOLD_position"))
+### Generate various models
+
+We are generating four linear regression models to examine which would be best suited for the prediction of Buchanan votes. The four models are as follows:
+* BVB: Buchanan versus Bush votes, both in original numeric value.
+* LVB: The natural Log of Buchanan votes versus Bush votes in original numeric value.
+* BVL: Buchanan votes in original numeric value versus the natural log of Bush votes.
+* LVL: The natural log of Buchanan versus the natural log of Bush votes.
+
+Having each of these models will allow us to look at the statistics of each model and decide, based on their statistics, which will fit our prediction best.
+
+```{r echo=FALSE}
+## Bush vs Buchanan
+model_bvb <- lm(Buchanan2000 ~ Bush2000, data = election_wo_pb)
+BVB <- summary(model_bvb)$r.squared
+
+## log(Bush) vs Buchanan
+model_lvb <- lm(Buchanan2000 ~ log(Bush2000), data = election_wo_pb)
+LVB <- summary(model_lvb)$r.squared
+
+## Bush vs log(Buchanan)
+model_bvl <- lm(log(Buchanan2000) ~ Bush2000, data = election_wo_pb)
+BVL <- summary(model_bvl)$r.squared
+
+## log(Bush) vs log(Buchanan)
+model_lvl <- lm(log(Buchanan2000) ~ log(Bush2000), data = election_wo_pb)
+LVL <- summary(model_lvl)$r.squared
+
 ```
 
-Let $Buchanan_i$ denote the number of Buchanan votes in any Florida county $i$ (during the 2000 election) and $Bush_i$ denote the number of Bush votes in any Florida county (also during the 2000 election). Our final population regression model is $$E[Buchanan_i | Bush_i] = \beta_0 + \beta_1\left(Bush_i\right).$$
+### R-Squared values
+
+We can compare the $R^2$ values of these various transformations using this table, which tells us that the `ln(Buchanan) vs ln(Bush)` model has the highest correlation of the four models.
+```{r echo=FALSE}
+
+rsq.table = data.frame(BVB, LVB, BVL, LVL)
+names = c("Buchanan v Bush", "ln(Buchanan) v Bush", "Buchanan v ln(Bush)", "ln(Buchanan) v ln(Bush)")
+caption = "R-Squared (correlation) values for various models"
+
+rsq.table %>% kable(caption = caption, col.names = names)
+
+```
+
+### Visualize new model
+
+*describe the spread of the data in this version*
+```{r echo=FALSE}
+
+ggplot(data = election_wo_pb, aes(x = log(Bush2000), y = log(Buchanan2000))) +
+  geom_point() +
+  scale_x_continuous(trans = "log", labels = scales::comma) + 
+  geom_smooth(method = lm, formula = y~x) +
+  xlab("Bush Votes (ln)") +
+  ylab("Buchanan Votes (ln)") + 
+  labs(title = "Votes in the 2000 US Presidential Election", subtitle = "Bush and Buchanan only", caption = "Data Source: Statistical Sleuth") +
+  theme_minimal()
+
+```
+
+## Goodness of Fit
+
+### Residuals
+
+Our selected model, in which both the Bush and Buchanan votes are logged, yields the greatest $R^2$ value at $0.8658343$. With its $R^2$ value, it captures a stronger linear relationship than its comparison models used (Buchanan vs Bush, $ln(Buchanan)$ vs Bush, Buchanan vs $ln(Bush)$) and also suggests a more proportional scaling between the votes, as we can see in the visual above.
+
+To see if our our model is truly effective and the votes in the dataset are not random, we can use the Linearity Test, Homogeneity of Variance, as well as the Normality of Residuals.
+
+#### Linearity Test
+```{r echo=FALSE}
+check_model(model_lvl, check = c("linearity"))
+# plot(model_lvl, 1)
+```
+In this case, our reference line, in green, is not perfectly flat and horizontal, thus it does not pass the linearity test. 
+
+#### Homogeneity of variance
+```{r echo=FALSE}
+
+# plot(model_lvl, 3)
+check_model(model_lvl, check = c("homogeneity"))
+
+```
+
+Again, we see that our data is not linear as the variance (the points in the plot) is scattered with no constant relationship. A linear relationship requires constant variance.
+
+#### Normality of Residuals
+```{r echo=FALSE}
+check_model(model_lvl, check = c("qq"))
+# plot(model_lvl, 2)
+```
+We see in the Normality of Residuals plot above that the data points for the sample quantile deviations vs the normal distribution quantiles do not make a horizontal line shape.
+
+Sources: 
+- http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/
+- https://cran.r-project.org/web/packages/performance/index.html
+
+## Predictions
+
+### Regression Line
+
+Let $Bush_i$ denote the $ln$ number of Bush votes in any Florida county during the 2000 election. Using the regression model from above, we can predict $Buchanan_i$, the $ln$ of the number of Buchanan votes in any Florida county $i$ (during the 2000 election) based on any $Bush_i$ value. Using this regression model, we can find $$Buchanan_i = \beta_0 + \beta_1\left(Bush_i\right).$$ 
+
+```{r echo=FALSE}
+
+model.table <- summary(model_lvl)$coefficients
+
+model.table |> 
+  kbl(col.names = c("Estimate", "Std. Error", "t value", "p value"), 
+      align = "c", booktabs = T, linesep="", digits = c(4, 4, 4, 4)) |>
+  kable_classic(full_width = F, latex_options = c("HOLD_position"))
+
+```
+
+This linear model predicts that for each increase in $ln(Bush_i)$, that $ln(Buchanan_i)$ should increase by $0.7310$ votes. We can now use this model to predict the number of votes Buchanan should have received in Palm Beach County, if Palm Beach county was the same as the other Florida counties. 
+
+### Prediction Interval
 
 **Obtain a 95% prediction interval for the number of Buchanan votes in Palm Beach from this result—assuming the relationship is the same in this county as in the others**
+```{r echo=FALSE}
 
-```{r}
-predict(model, newdata = data.frame(Bush2000 = 152846), interval = "prediction", level = 0.95)
+predict(model_lvl, newdata = data.frame(Bush2000 = 152846), interval = "prediction", level = 0.95) %>%
+  kbl(col.names = c("center", "lower", "upper"),
+      align = "c", booktabs = T, linesep="") %>%
+  kable_classic(full_width = F, latex_options = c("HOLD_position"))
+
 ```
 
-Our prediction interval tells us that, based on this sample 95% of the time, the number of votes for Buchanan in the 2000 election should be between 364 and 830 votes, given that 152,846 people voted for Bush.
+We can transform these numbers to determine the non-$ln$ vote count. 
 
+lower: $e^{5.524656} = 250.8$
+upper: $e^{7.24363} = 1399.164$
+
+Our prediction interval tells us that, based on this sample, 95% of the time, the number of votes for Buchanan in the 2000 election should be between 250.8 and 1399.164 votes, given that 152,846 people voted for Bush.
+
+However, in the 2000 election, Buchanan received 3407 votes, which is over twice as large as the upper bound of our interval. This shows that Palm Beach county's votes for Bush and Buchanan are highly irregular compared to other Florida counties. 
+
+## Gore's Votes
 
 **Assuming that some of the votes cast for Buchanan were intended as votes for Gore, use the prediction interval to give an estimate for the likely number of votes intended for Gore but cast for Buchanan.**
 
-There were 3407 votes for Buchanan, but our prediction interval tells us that the number of votes expected for Buchanan 95% of the time is between 364 and 830, so the likely number of votes intended for Gore but cast for Buchanan were between $3407-830 = 2577$ and $3407-364 = 3043$
+There were 3407 votes for Buchanan in the 2000 election, but our prediction interval tells us that the number of votes expected for Buchanan 95% of the time is between 250.800 and 1399.164, so the likely number of votes intended for Gore but cast for Buchanan should be between $3407-250.800 = 3156.200$ and $3407-1399.164 = 2007.836$. 
 
-1. Most Appropriate Model
+# DISCUSSION
 
-### Bush vs Buchanan
-```{r}
-model_bvb <- lm(Buchanan2000 ~ Bush2000, data = election_wo_pb)
-a <- summary(model_bvb)$r.squared
-```
+Our goal with this case study was to determine if, based on the vote counts for Pat Buchanan and George Bush in every Florida county, we could conclude whether Buchanan received an unusual number of votes in Palm Beach county. We used a linear model on data that had been transformed to show that for every increase in $ln(Bush_i)$ by one $ln(Buchanan_i)$ should increase by about $0.7310$ votes. 
 
-### log(Bush) vs Buchanan
-```{r}
-model_lvb <- lm(Buchanan2000 ~ log(Bush2000), data = election_wo_pb)
-b <- summary(model_lvb)$r.squared
-```
+We used this model to generate a prediction interval that predicted with 95% confidence that Buchanan’s vote count in Palm Beach County should have been between $250.8$ and $1399.164$. Instead, Buchanan received $3407$ votes, a highly irregular value, according to this model. Based on this, we can conclude that there is evidence Buchanan received an unusually high number of votes in Palm Beach county. 
 
-### log(Bush) vs log(Buchanan)
-```{r}
-model_lvl <- lm(log(Buchanan2000) ~ log(Bush2000), data = election_wo_pb)
-c <- summary(model_lvl)$r.squared
-```
+This deviation from the number of expected votes lends credence to the complaints of many Democratic voters who reported having accidentally voted for Buchanan (the Reform candidate) instead of Al Gore (the Democratic candidate), because of the confusing ballot layout. On a larger scale, this shows that the incredibly close election of George Bush in 2000 may have been – at least in part – due to a fluke in ballot design. 
 
-### Bush vs log(Buchanan)
-```{r}
-model_bvl <- lm(log(Buchanan2000) ~ Bush2000, data = election_wo_pb)
-d <- summary(model_bvl)$r.squared
-```
-
-```{r}
-rsq.table = data.frame(a, b, c, d)
-rsq.table
-```
-
-
-
-2. Goodness of Fit
-
-
-3. Prediction Interval
-
-4. Gore's Votes
-
+However, we can’t make a conclusive claim that this is the case. First of all, our model only calculates the correlation between Buchanan and Bush’s votes – it cannot determine if there’s a causal relationship between the two, or indeed the existence of any causal factors affecting the relationship between the two. Additionally, we cannot directly attribute the unusual number of votes for Buchanan to the ballot layout, as we haven’t examined any other elections with strange ballots and, again, this is not a causal model. 
 
 
 ----
 
 
-```{r}
-#| include: false
-
-# The written short report component of your case study should not have any visible R code, and the only R output that should be included are relevant plots and nicely formatted tables. Of course, this means that the R code to generate those figures/tables must be included *somewhere* in the Quarto .qmd document, but remain hidden from the reader! 
-#   We can accomplish this using chunk options, like the include: false option above.
-#   This tells Quarto to run and execute the code, but to exclude both the code and any associated output from the rendered PDF document.
-
-# Loading necessary packages
-library(tidyverse)
-library(Sleuth2)      # the package containing the data for the case study. you may need to install this package first!
-library(kableExtra)   # for creating nicely formatted tables in Quarto
-
-# Loading the case study data
-election <- Sleuth2::ex0825
-
-# Creating a second dataset with Palm Beach County excluded
-election_wo_pb <- election |> filter(County != "Palm Beach")
-
-```
-
-### An example section heading
-
 *When you create plots for your case study report, the `echo: false` chunk option tells Quarto to include the final output of your R commands (in this case, a plot) in your rendered PDF without* printing the underlying R commands that generated that plot! The message and warning flags both prevent R from printing any additional text with error messages or warnings to the PDF.
 
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
 
-wine |> ggplot(aes(x = Wine, y = Mortality)) + geom_point() + ggtitle("Association between wine consumption and mortality rates.")
-```
-
-*When reporting the results of your regression analysis, I would like you to write out the equation for the population regression line of your main/final model(s). Here is an example of what that might look like:*
-
-Let $mort_i$ denote the heart disease mortality rate in country $i$ (measured in deaths per 1,000 individuals) and $wine_i$ denote the consumption of wine (measured in liters per person per year). Our final population regression model is $$E[mort_i | wine_i] = \beta_0 + \beta_1\left(wine_i\right).$$
-
-*You do not need to write out the fitted regression line, but you should (at a minimum) provide a table summarizing the estimated coefficients of the model and their corresponding standard errors, like the one shown below. A print-out from the `summary()` command alone is not sufficient.*
 
 ```{r}
-#| echo: false
-
-# Fitting the regression line for mean mortality as a function of wine consumption
-lm.wine <- lm(Mortality ~ Wine, data = wine)
-
-# Representing the regression table as a dataframe (i.e., tidying the summary() output)
-lm.wine.table <- summary(lm.wine)$coefficients
-
-# Creating a nicely formatted table from the dataframe using the kable package
-#   You can find more information about this package here: https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf
-lm.wine.table |> kbl(col.names = c("Name for Col. 1", "Name for Col. 2", "Name for Col. 3", "Name for Col. 4"), align = "c", booktabs = T, linesep="", digits = c(2, 2, 2, 4)) |> kable_classic(full_width = F, latex_options = c("HOLD_position"))
+# #| echo: false
+# 
+# # Fitting the regression line for mean mortality as a function of wine consumption
+# lm.wine <- lm(Mortality ~ Wine, data = wine)
+# 
+# # Representing the regression table as a dataframe (i.e., tidying the summary() output)
+# lm.wine.table <- summary(lm.wine)$coefficients
+# 
+# # Creating a nicely formatted table from the dataframe using the kable package
+# #   You can find more information about this package here: https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf
+# lm.wine.table |> kbl(col.names = c("Name for Col. 1", "Name for Col. 2", "Name for Col. 3", "Name for Col. 4"), align = "c", booktabs = T, linesep="", digits = c(2, 2, 2, 4)) |> kable_classic(full_width = F, latex_options = c("HOLD_position"))
 
 ```
 
-# R Appendix
+# R APPENDIX
 
 *Copy and paste all code that you used for your case study into one chunk at the end of your written report. Before submitting your case study, take one final look at the R Appendix and make sure that all code is clearly visible. If you see a line running off the side of the PDF, please split the code over multiple lines using a linebreak.*
 
 ```{r}
-#| message: FALSE
-#| warning: FALSE
-
-# Loading necessary packages
-library(tidyverse)
-library(Sleuth2)
-library(broom)        
-library(kableExtra)   
-
-# Loading the case study data
-election <- Sleuth2::ex0825
-
-# Creating a second dataset with Palm Beach County excluded
-election_wo_pb <- election |> filter(County != "Palm Beach")
-
-# Loading another dataset on wine consumption and heart disease mortality
-wine <- Sleuth2::ex0823
-
-# Creating a scatterplot for the relationship between mortality and wine consumption
-wine |> ggplot(aes(x = Wine, y = Mortality)) + geom_point() + 
-  ggtitle("Association between wine consumption and mortality rates.")
-
-# Fitting and summarizing the regression line for mean mortality 
-# as a function of wine consumption
-wine.lm <- lm(Mortality ~ Wine, data = wine)
-wine.lm.table <- wine.lm |> tidy()
-wine.lm.table |> kbl(col.names = c("Name for Col. 1", "Name for Col. 2", 
-                                   "Name for Col. 3", "Name for Col. 4", 
-                                   "Name for Col. 5"), 
-                     align = "c", booktabs = T, linesep="", 
-                     digits = c(2, 2, 2, 4)) |> 
-  kable_classic(full_width = F, latex_options = c("HOLD_position"))
+# #| message: FALSE
+# #| warning: FALSE
+# 
+# # Loading necessary packages
+# library(tidyverse)
+# library(Sleuth2)
+# library(broom)        
+# library(kableExtra)   
+# 
+# # Loading the case study data
+# election <- Sleuth2::ex0825
+# 
+# # Creating a second dataset with Palm Beach County excluded
+# election_wo_pb <- election |> filter(County != "Palm Beach")
+# 
+# # Loading another dataset on wine consumption and heart disease mortality
+# wine <- Sleuth2::ex0823
+# 
+# # Creating a scatterplot for the relationship between mortality and wine consumption
+# wine |> ggplot(aes(x = Wine, y = Mortality)) + geom_point() + 
+#   ggtitle("Association between wine consumption and mortality rates.")
+# 
+# # Fitting and summarizing the regression line for mean mortality 
+# # as a function of wine consumption
+# wine.lm <- lm(Mortality ~ Wine, data = wine)
+# wine.lm.table <- wine.lm |> tidy()
+# wine.lm.table |> kbl(col.names = c("Name for Col. 1", "Name for Col. 2", 
+#                                    "Name for Col. 3", "Name for Col. 4", 
+#                                    "Name for Col. 5"), 
+#                      align = "c", booktabs = T, linesep="", 
+#                      digits = c(2, 2, 2, 4)) |> 
+#   kable_classic(full_width = F, latex_options = c("HOLD_position"))
 ```
