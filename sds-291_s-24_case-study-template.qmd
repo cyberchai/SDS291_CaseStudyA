@@ -141,7 +141,7 @@ To see if our our model is truly effective and the votes in the dataset are not 
 check_model(model_lvl, check = c("linearity"))
 # plot(model_lvl, 1)
 ```
-In this case, our reference line, in green, is not perfectly flat and horizontal, thus it does not pass the linearity test. 
+In this case, our data do not make a flat and horizontal reference line, thus we do not satisfy the linearity test.
 
 #### Homogeneity of variance
 ```{r echo=FALSE}
