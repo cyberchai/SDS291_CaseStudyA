@@ -212,7 +212,7 @@
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, interior hidden, breakable, sharp corners, frame hidden, enhanced]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, interior hidden, sharp corners, enhanced, frame hidden, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt]}{\end{tcolorbox}}\fi
 
 \emph{Your written short report should be the first thing your reader
 encounters in your case study document. While you may choose to label
@@ -235,6 +235,25 @@ from executed code chunks.}
 \hypertarget{introduction}{%
 \section{INTRODUCTION}\label{introduction}}
 
+The choice of American President -- and to a lesser extent Congress --
+can determine the course of public policy and politics both domestically
+and internationally for the next 4 years. The election of 2000 was a
+particularly controversial one in American history, especially regarding
+Florida, whose close vote counts resulted in several false calls of the
+election for candidate Al Gore, despite the final reports calling the
+election for George Bush.
+
+The cause of this upset can be attributed to many factors, key among
+which has been identified by analysts was the unique design of the
+ballot in Palm Beach County. Many Democrat voters complained the layout
+of the ballot led them to accidentally choose the Reform Party Candidate
+Pat Buchanan, who was projected to receive many fewer votes than he did
+in Palm Beach County. In this case study, we attempt to determine if
+there's evidence that Buchanan received an uncommonly high number of
+votes in the 2000 election. We do so by analyzing the relationship
+between the votes received by Bush (as the explanatory variable) and
+Buchanan (as the response variable) across several Florida counties.
+
 \hypertarget{results}{%
 \section{RESULTS}\label{results}}
 
@@ -251,13 +270,20 @@ from executed code chunks.}
 \FunctionTok{library}\NormalTok{(kableExtra)  }
 \FunctionTok{library}\NormalTok{(broom)}
 \FunctionTok{library}\NormalTok{(performance)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
 \end{Highlighting}
 \end{Shaded}
 
 \hypertarget{data-wrangling}{%
-\subsubsection{data wrangling}\label{data-wrangling}}
+\subsubsection{Data wrangling}\label{data-wrangling}}
 
-\emph{include paragraph on data wrangling here}
+The data used in this case study comes from the Sleuth2 library in R.
+The dataset is of the number of votes for candidates George Bush and Pat
+Buchanan in the 2000 election from each county in Florida. For our
+data-wrangling process we removed one observation from the dataset. In
+order to generate a model without the Palm Beach county data, we removed
+the ``Palm Beach'\,' row. The dataset originally has 67 observations, so
+the dataset we used for this analysis has a total of 66 observations.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -272,10 +298,12 @@ from executed code chunks.}
 \hypertarget{explore-data}{%
 \subsection{Explore Data}\label{explore-data}}
 
-\emph{describe the data layout + clearly outline the explanatory and
-response variables}
-
 \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-3-1.pdf}
+
+This distribution is vaguely linear, although heavily grouped towards
+the left side of the x-axis and the bottom of the y-axis. The wide range
+of values on both axes, however, makes it difficult to determine the
+exact relationship between these variables.
 
 \hypertarget{find-most-appropriate-model}{%
 \subsection{Find Most Appropriate
@@ -284,14 +312,34 @@ Model}\label{find-most-appropriate-model}}
 \hypertarget{generate-various-models}{%
 \subsubsection{Generate various models}\label{generate-various-models}}
 
-\emph{expand on what we're doing and why we're doing it}
+We are generating four linear regression models to examine which would
+be best suited for the prediction of Buchanan votes. The four models are
+as follows:
+
+\begin{itemize}
+\tightlist
+\item
+  BVB: Buchanan versus Bush votes, both in original numeric value.
+\item
+  LVB: The natural Log of Buchanan votes versus Bush votes in original
+  numeric value.
+\item
+  BVL: Buchanan votes in original numeric value versus the natural log
+  of Bush votes.
+\item
+  LVL: The natural log of Buchanan versus the natural log of Bush votes.
+\end{itemize}
+
+Having each of these models will allow us to look at the statistics of
+each model and decide, based on their statistics, which will fit our
+prediction best.
 
 \hypertarget{r-squared-values}{%
 \subsubsection{R-Squared values}\label{r-squared-values}}
 
-We can now compare the \(R^2\) values of these various transformations,
-and from this table we know that the \texttt{ln(Buchanan)\ vs\ ln(Bush)}
-model has the highest correlation.
+We can compare the \(R^2\) values of these various transformations using
+this table, which tells us that the \texttt{ln(Buchanan)\ vs\ ln(Bush)}
+model has the highest correlation of the four models.
 
 \begin{longtable}[]{@{}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2000}}
@@ -350,34 +398,38 @@ Buchanan vs \(ln(Bush)\)) and also suggests a more proportional scaling
 between the votes, as we can see in the visual above.
 
 To see if our our model is truly effective and the votes in the dataset
-are not random, we can use the Linearity test and examine the Normality
-of Residuals.
+are not random, we can use the Linearity Test, Homogeneity of Variance,
+as well as the Normality of Residuals.
 
 \hypertarget{linearity-test}{%
 \paragraph{Linearity Test}\label{linearity-test}}
 
 \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-7-1.pdf}
 
-\includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-7-2.pdf}
-
-In this case, our reference line, in green, is not perfectly flat and
-horizontal, thus it does not pass the linearity test. But it's not bad
-tho\ldots{}
+In this case, our data do not make a flat and horizontal reference line,
+thus we do not satisfy the linearity test.
 
 \hypertarget{homogeneity-of-variance}{%
 \paragraph{Homogeneity of variance}\label{homogeneity-of-variance}}
 
 \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-8-1.pdf}
 
+Again, we see that our data is not linear as the variance (the points in
+the plot) is scattered with no constant relationship. A linear
+relationship requires constant variance.
+
 \hypertarget{normality-of-residuals}{%
 \paragraph{Normality of Residuals}\label{normality-of-residuals}}
 
 \includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-9-1.pdf}
 
-\includegraphics{sds-291_s-24_case-study-template_files/figure-pdf/unnamed-chunk-9-2.pdf}
+We see in the Normality of Residuals plot above that the data points for
+the sample quantile deviations vs the normal distribution quantiles do
+not make a horizontal line shape.
 
-Sources:
+Sources: -
 http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/
+- https://cran.r-project.org/web/packages/performance/index.html
 
 \hypertarget{predictions}{%
 \subsection{Predictions}\label{predictions}}
@@ -490,29 +542,6 @@ as we haven't examined any other elections with strange ballots and,
 again, this is not a causal model.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\emph{When you create plots for your case study report, the
-\texttt{echo:\ false} chunk option tells Quarto to include the final
-output of your R commands (in this case, a plot) in your rendered PDF
-without} printing the underlying R commands that generated that plot!
-The message and warning flags both prevent R from printing any
-additional text with error messages or warnings to the PDF.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# \#| echo: false}
-\CommentTok{\# }
-\CommentTok{\# \# Fitting the regression line for mean mortality as a function of wine consumption}
-\CommentTok{\# lm.wine \textless{}{-} lm(Mortality \textasciitilde{} Wine, data = wine)}
-\CommentTok{\# }
-\CommentTok{\# \# Representing the regression table as a dataframe (i.e., tidying the summary() output)}
-\CommentTok{\# lm.wine.table \textless{}{-} summary(lm.wine)$coefficients}
-\CommentTok{\# }
-\CommentTok{\# \# Creating a nicely formatted table from the dataframe using the kable package}
-\CommentTok{\# \#   You can find more information about this package here: https://haozhu233.github.io/kableExtra/awesome\_table\_in\_pdf.pdf}
-\CommentTok{\# lm.wine.table |\textgreater{} kbl(col.names = c("Name for Col. 1", "Name for Col. 2", "Name for Col. 3", "Name for Col. 4"), align = "c", booktabs = T, linesep="", digits = c(2, 2, 2, 4)) |\textgreater{} kable\_classic(full\_width = F, latex\_options = c("HOLD\_position"))}
-\end{Highlighting}
-\end{Shaded}
 
 \hypertarget{r-appendix}{%
 \section{R APPENDIX}\label{r-appendix}}

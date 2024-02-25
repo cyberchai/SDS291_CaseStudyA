@@ -25,6 +25,11 @@ format:
 
 # INTRODUCTION
 
+The choice of American President – and to a lesser extent Congress – can determine the course of public policy and politics both domestically and internationally for the next 4 years. The election of 2000 was a particularly controversial one in American history, especially regarding Florida, whose close vote counts resulted in several false calls of the election for candidate Al Gore, despite the final reports calling the election for George Bush. 
+
+The cause of this upset can be attributed to many factors, key among which has been identified by analysts was the unique design of the ballot in Palm Beach County. Many Democrat voters complained the layout of the ballot led them to accidentally choose the Reform Party Candidate Pat Buchanan, who was projected to receive many fewer votes than he did in Palm Beach County. In this case study, we attempt to determine if there’s evidence that Buchanan received an uncommonly high number of votes in the 2000 election. We do so by analyzing the relationship between the votes received by Bush (as the explanatory variable) and Buchanan (as the response variable) across several Florida counties. 
+
+
 # RESULTS
 
 ## Generate Data
@@ -39,11 +44,13 @@ library(Sleuth2)
 library(kableExtra)  
 library(broom)
 library(performance)
+library(ggplot2)
 ```
 
-### data wrangling
+### Data wrangling
 
-*include paragraph on data wrangling here*
+The data used in this case study comes from the Sleuth2 library in R. The dataset is of the number of votes for candidates George Bush and Pat Buchanan in the 2000 election from each county in Florida. For our data-wrangling process we removed one observation from the dataset. In order to generate a model without the Palm Beach county data, we removed the “Palm Beach'' row. The dataset originally has 67 observations, so the dataset we used for this analysis has a total of 66 observations. 
+
 ```{r}
 # Loading the case study data
 election <- Sleuth2::ex0825
@@ -54,8 +61,6 @@ election_wo_pb <- election |> filter(County != "Palm Beach")
 ```
 
 ## Explore Data
-
-*describe the data layout + clearly outline the explanatory and response variables*
 ```{r echo=FALSE}
 
 ggplot(data = election_wo_pb, aes(x = Bush2000, y = Buchanan2000)) +
@@ -67,12 +72,14 @@ ggplot(data = election_wo_pb, aes(x = Bush2000, y = Buchanan2000)) +
   theme_minimal()
 
 ```
+This distribution is vaguely linear, although heavily grouped towards the left side of the x-axis and the bottom of the y-axis. The wide range of values on both axes, however, makes it difficult to determine the exact relationship between these variables. 
 
 ## Find Most Appropriate Model
 
 ### Generate various models
 
 We are generating four linear regression models to examine which would be best suited for the prediction of Buchanan votes. The four models are as follows:
+
 * BVB: Buchanan versus Bush votes, both in original numeric value.
 * LVB: The natural Log of Buchanan votes versus Bush votes in original numeric value.
 * BVL: Buchanan votes in original numeric value versus the natural log of Bush votes.
@@ -220,28 +227,8 @@ This deviation from the number of expected votes lends credence to the complaint
 
 However, we can’t make a conclusive claim that this is the case. First of all, our model only calculates the correlation between Buchanan and Bush’s votes – it cannot determine if there’s a causal relationship between the two, or indeed the existence of any causal factors affecting the relationship between the two. Additionally, we cannot directly attribute the unusual number of votes for Buchanan to the ballot layout, as we haven’t examined any other elections with strange ballots and, again, this is not a causal model. 
 
-
 ----
 
-
-*When you create plots for your case study report, the `echo: false` chunk option tells Quarto to include the final output of your R commands (in this case, a plot) in your rendered PDF without* printing the underlying R commands that generated that plot! The message and warning flags both prevent R from printing any additional text with error messages or warnings to the PDF.
-
-
-
-```{r}
-# #| echo: false
-# 
-# # Fitting the regression line for mean mortality as a function of wine consumption
-# lm.wine <- lm(Mortality ~ Wine, data = wine)
-# 
-# # Representing the regression table as a dataframe (i.e., tidying the summary() output)
-# lm.wine.table <- summary(lm.wine)$coefficients
-# 
-# # Creating a nicely formatted table from the dataframe using the kable package
-# #   You can find more information about this package here: https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf
-# lm.wine.table |> kbl(col.names = c("Name for Col. 1", "Name for Col. 2", "Name for Col. 3", "Name for Col. 4"), align = "c", booktabs = T, linesep="", digits = c(2, 2, 2, 4)) |> kable_classic(full_width = F, latex_options = c("HOLD_position"))
-
-```
 
 # R APPENDIX
 
